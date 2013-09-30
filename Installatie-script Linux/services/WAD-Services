@@ -1,0 +1,52 @@
+#!/bin/bash
+
+case $1 in
+        start)
+             start WAD-Collector
+             start WAD-Selector
+             start WAD-Processor
+        ;;
+        stop)
+             if [ -e "/var/run/WAD-Collector" ]; then
+                stop WAD-Collector
+             else
+                echo "Warning: WAD-Collector service was not running."
+             fi
+             if [ -e "/var/run/WAD-Selector" ]; then
+                stop WAD-Selector
+             else
+                echo "Warning: WAD-Selector service was not running."
+             fi
+             if [ -e "/var/run/WAD-Processor" ]; then
+                stop WAD-Processor
+             else
+                echo "Warning: WAD-Processor service was not running."
+             fi
+        ;;
+        restart)
+             if [ -e "/var/run/WAD-Collector" ]; then
+                restart WAD-Collector
+             else
+                echo "Warning: WAD-Collector service is not running; starting now."
+                start WAD-Collector
+             fi
+             if [ -e "/var/run/WAD-Selector" ]; then
+                restart WAD-Selector
+             else
+                echo "Warning: WAD-Selector service is not running; starting now."
+                start WAD-Selector
+             fi
+             if [ -e "/var/run/WAD-Processor" ]; then
+                restart WAD-Processor
+             else
+                echo "Warning: WAD-Processor service is not running; starting now."
+                start WAD-Processor
+             fi
+        ;;
+        status)
+             initctl list | grep WAD-
+        ;;
+        *)
+             echo "Usage: `basename $0` {start|stop|restart|status}"
+        ;;
+esac
