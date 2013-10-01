@@ -195,7 +195,7 @@ unzip $ZIP_DCM4CHEE -d $TARGET_DCM4CHEE
 
 MACHINE_TYPE=`uname -m`
 if [ ${MACHINE_TYPE} == 'x86_64' ]; then
-   perl -pi -e 's/value="com.sun.media.imageioimpl.plugins.jpeg.CLibJPEGImageWriter"/value="com.sun.imageio.plugins.jpeg.JPEGImageWriter/g' $TARGET_DCM4CHEE/$(basename $ZIP_DCM4CHEE .zip)/server/default/conf/xmdesc/dcm4chee-wado-xmbean.xml
+   perl -pi -e 's/value="com.sun.media.imageioimpl.plugins.jpeg.CLibJPEGImageWriter"/value="com.sun.imageio.plugins.jpeg.JPEGImageWriter"/g' $TARGET_DCM4CHEE/$(basename $ZIP_DCM4CHEE .zip)/server/default/conf/xmdesc/dcm4chee-wado-xmbean.xml
 fi
 
 echo "Finished installing DCM4CHEE - MySQL"
