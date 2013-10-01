@@ -259,7 +259,7 @@ cp -RL source/WAD_Interface/website/* $TARGET_WAD_INTERFACE
 #a2ensite wadiqc
 #bash /etc/init.d/apache2 restart
 
-chown -R www-data:webadmins $TARGET_WAD_INTERFACE/*
+chown -R www-data:www-data $TARGET_WAD_INTERFACE/*
 chmod u+x -R $TARGET_WAD_INTERFACE/*
 
 echo
