@@ -41,8 +41,8 @@ fi
 ############################################################################################
 
 echo
-echo "Please provide your Mysql root-password: "
 read -s -p "Please provide your Mysql root-password: " mysqlpwd
+echo
 echo
 
 ############################################################################################
@@ -54,20 +54,26 @@ echo
 [ -f /usr/bin/java ] && java -version
 echo
 
+yesno=n
+
 if [ -f /usr/bin/java ]; then
         echo
         read -n 1 -p "Skip installing java jre/jdk? [Y/n] " yesno
+		echo
 fi
 
 if [[ "$yesno" != "" && "$yesno" != "y" && "$yesno" != "Y" ]] ; then
         echo
+		echo "Which JAVA version do you want to install?"
         echo "1. none"
         echo "2. openjdk-6-jdk"
         echo "3. openjdk-6-jre"
         echo "4. openjdk-7-jdk"
         echo "5. openjdk-7-jre"
+		echo
 
         read -n 1 -p "Which version of java do you want to install? " option
+		echo
         if [ $option == "2" ]; then
                 JAVA=openjdk-6-jdk
         fi
@@ -107,14 +113,16 @@ perl -pi -e 's/^upload_max_filesize = 2M/upload_max_filesize = 200M/g' /etc/php5
 
 # 1. Maak de folder c:\WAD-software aan en kopieer de mappen WAD Interface en WAD Service hier naartoe. WAD Interface bevat de website en de database create-scripts WAD Service bevat de benodigde java applicaties
 
+echo
 echo "Restarting apache"
 service apache2 restart
 echo "Finished restarting apache"
 
+
 ############################################################################################
 ############################################################################################
 
-
+echo
 echo "Installing DCM4CHEE - MySql"
 unzip $ZIP_DCM4CHEE -d $TARGET_DCM4CHEE
 #tar -C /opt -xzvf source/dcm4chee-2.17.1-mysql.tgz
@@ -133,7 +141,8 @@ echo "Finished installing DCM4CHEE - MySQL"
 ############################################################################################
 
 
-echo "Creating DCM4CHEE tables"
+echo
+echo "Creating DCM4CHEE tables (this can take a while)"
 perl -pi -e "s%^mysql -upacs -ppacs pacsdb.*$/%mysql -upacs -ppacs pacsdb < $TARGET_DCM4CHEE/$(basename $ZIP_DCM4CHEE .zip)/sql/create.mysql\n%g" source/WAD_Interface/create_databases/create_dcm4chee_tables.sh
 bash source/WAD_Interface/create_databases/create_dcm4chee_tables.sh $mysqlpwd
 echo "Finished creating DCM4CHEE tables"
@@ -142,6 +151,7 @@ echo "Finished creating DCM4CHEE tables"
 DCM4CHEE_FOLDER=$TARGET_DCM4CHEE/$(basename $ZIP_DCM4CHEE .zip)
 JBOSS_FOLDER=$TARGET_DCM4CHEE/$(unzip -qql $ZIP_JBOSS | head -n1 | awk {'print $4'})
 
+echo
 echo "Installing JBOSS"
 unzip $ZIP_JBOSS -d $TARGET_DCM4CHEE
 bash  $DCM4CHEE_FOLDER/bin/install_jboss.sh $JBOSS_FOLDER
@@ -153,6 +163,7 @@ echo "Finished installing JBOSS"
 #bash  /opt/dcm4chee-2.17.3-mysql/bin/install_cdw.sh /opt/dcm4chee-cdw-2.17.0/
 #echo "Finished installing DCM4CHEE - CDW"
 
+echo
 echo "Installing DCM4CHEE - ARR"
 unzip $ZIP_DCM4CHEE_ARR -d $TARGET_DCM4CHEE
 bash  $DCM4CHEE_FOLDER/bin/install_arr.sh $TARGET_DCM4CHEE/$(basename $ZIP_DCM4CHEE_ARR .zip)
@@ -172,12 +183,12 @@ echo "Finished installing DCM4CHEE - ARR"
 # Install WAD Software (Services + Interface)
 ############################################################################################
 
-
+echo
 echo "Creating IQC tables"
 bash source/WAD_Interface/create_databases/create_iqc_tables.sh $mysqlpwd
 echo "Finished creating IQC tables"
 
-
+echo
 echo "Installing WAD Interface"
 
 [ -f $TARGET_WAD_INTERFACE/index.html ] && mv $TARGET_WAD_INTERFACE/index.html $TARGET_WAD_INTERFACE/index.old
@@ -189,7 +200,7 @@ cp -RL source/WAD_Interface/website/* $TARGET_WAD_INTERFACE
 chown -R www-data:webadmins $TARGET_WAD_INTERFACE/*
 chmod u+x -R $TARGET_WAD_INTERFACE/*
 
-
+echo
 echo "Installing WAD Services"
 
 cp -RL source/WAD_Services/ $TARGET_WAD_SERVICES
@@ -197,9 +208,9 @@ mkdir -p $TARGET_XML/analysemodule_output
 mkdir -p $TARGET_XML/analysemodule_input
 
 # modify config.xml
-perl -pi -e "s%^(\s*<uploads>).*(</uploads>\s*$)%\1$TARGET_WAD_INTERFACE/\2%g" $TARGET_WAD_SERVICES/WAD_Services
-perl -pi -e "s%^(\s*<XML>).*(</XML>\s*$)%\1$TARGET_XML/\2%g" $TARGET_WAD_SERVICES/WAD_Services
-perl -pi -e "s%^(\s*<archive>).*(</archive>\s*$)%\1$TARGET_DCM4CHEE/$(basename $ZIP_DCM4CHEE .zip)/server/default/\2%g" $TARGET_WAD_SERVICES/WAD_Services
+perl -pi -e "s%^(\s*<uploads>).*(</uploads>\s*$)%\1$TARGET_WAD_INTERFACE/\2%g" $TARGET_WAD_SERVICES/WAD_Services/config.xml
+perl -pi -e "s%^(\s*<XML>).*(</XML>\s*$)%\1$TARGET_XML/\2%g" $TARGET_WAD_SERVICES/WAD_Services/config.xml
+perl -pi -e "s%^(\s*<archive>).*(</archive>\s*$)%\1$TARGET_DCM4CHEE/$(basename $ZIP_DCM4CHEE .zip)/server/default/\2%g" $TARGET_WAD_SERVICES/WAD_Services/config.xml
 
 
 ############################################################################################
@@ -209,6 +220,7 @@ perl -pi -e "s%^(\s*<archive>).*(</archive>\s*$)%\1$TARGET_DCM4CHEE/$(basename $
 cp services/WAD-Services $TARGET_STARTSCRIPT/
 chmod +x $TARGET_STARTSCRIPT/WAD-Services
 
+echo
 read -n 1 -p "Install dcm4chee as a service? [Y/n] " yesno
 if [[ "$yesno" == "" || "$yesno" == "y" || "$yesno" == "Y" ]] ; then
 	cp services/dcm4chee.conf /etc/init
@@ -218,23 +230,22 @@ if [[ "$yesno" == "" || "$yesno" == "y" || "$yesno" == "Y" ]] ; then
 	service dcm4chee start
 fi
 
+echo
 read -n 1 -p "Install WAD-Services as a service? [Y/n] " yesno
 if [[ "$yesno" == "" || "$yesno" == "y" || "$yesno" == "Y" ]] ; then
 	cp services/WAD*.conf /etc/init
-	perl -pi -e "s%^chdir.*$%chdir $TARGET_WAD_SERVICES/WAD_Services/WAD-Collector/dist%g" /etc/init/WAD-Collector.conf
-	perl -pi -e "s%^(\s*test -e\s*).*( ||.*$)%\1$TARGET_WAD_SERVICES/WAD_Services/WAD-Collector/dist/WAD_Collector.jar\2%g" /etc/init/WAD-Collector.conf
-	perl -pi -e "s%^chdir.*$%chdir $TARGET_WAD_SERVICES/WAD_Services/WAD-Selector/dist%g" /etc/init/WAD-Selector.conf
-	perl -pi -e "s%^(\s*test -e\s*).*( ||.*$)%\1$TARGET_WAD_SERVICES/WAD_Services/WAD-Selector/dist/WAD_Selector.jar\2%g" /etc/init/WAD-Selector.conf
-	perl -pi -e "s%^chdir.*$%chdir $TARGET_WAD_SERVICES/WAD_Services/WAD-Processor/dist%g" /etc/init/WAD-Processor.conf
-	perl -pi -e "s%^(\s*test -e\s*).*( ||.*$)%\1$TARGET_WAD_SERVICES/WAD_Services/WAD-Processor/dist/WAD_Processor.jar\2%g" /etc/init/WAD-Processor.conf
+	perl -pi -e "s%^chdir.*$%chdir $TARGET_WAD_SERVICES/WAD_Services/WAD_Collector/dist%g" /etc/init/WAD-Collector.conf
+	perl -pi -e "s%^(\s*test -e\s*).*( ||.*$)%\1$TARGET_WAD_SERVICES/WAD_Services/WAD_Collector/dist/WAD_Collector.jar\2%g" /etc/init/WAD-Collector.conf
+	perl -pi -e "s%^chdir.*$%chdir $TARGET_WAD_SERVICES/WAD_Services/WAD_Selector/dist%g" /etc/init/WAD-Selector.conf
+	perl -pi -e "s%^(\s*test -e\s*).*( ||.*$)%\1$TARGET_WAD_SERVICES/WAD_Services/WAD_Selector/dist/WAD_Selector.jar\2%g" /etc/init/WAD-Selector.conf
+	perl -pi -e "s%^chdir.*$%chdir $TARGET_WAD_SERVICES/WAD_Services/WAD_Processor/dist%g" /etc/init/WAD-Processor.conf
+	perl -pi -e "s%^(\s*test -e\s*).*( ||.*$)%\1$TARGET_WAD_SERVICES/WAD_Services/WAD_Processor/dist/WAD_Processor.jar\2%g" /etc/init/WAD-Processor.conf
 	service WAD-Collector start
 	service WAD-Selector start
 	service WAD-Processor start
 fi
 
 ############################################################################################
-
-echo "Finished installation, enjoy!"
 
 echo
 echo "Services can be (re)started or stopped using:"
@@ -249,3 +260,8 @@ echo
 echo "Logfiles can be found under /var/log/upstart/<servicename>.log"
 echo
 echo "Alternatively, the script "WAD-Services" can be used to (re)start or stop all services at once."
+echo
+
+echo
+echo "Finished installation, enjoy!"
+echo
