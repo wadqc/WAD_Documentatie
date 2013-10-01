@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# This script installs the WAD software for Linux
+
+echo
+echo "WAD Installer for Ubuntu v1.0"
+
+
 ############################################################################################
 # Configuration of installation paths, etc
 ############################################################################################
@@ -18,22 +24,78 @@ ZIP_JBOSS=source/jboss-4.2.3.GA-jdk6.zip
 
 
 ############################################################################################
+## Check dependencies:
 ############################################################################################
 
-## This script installs the WAD software for Linux
-## Check dependencies:
 
+# check if current user is root
 if [ "$(id -u)" != "0" ]; then
    echo "This script must be run as root or using sudo" 1>&2
    exit 1
 fi
 
+
+# check for Ubuntu
 distro=$(lsb_release -i | awk '{print $3}')
 
 if [ "$distro" != "Ubuntu" ]; then
 	echo "sorry, this script is currently only supported for Ubuntu!"
 	exit 1
 fi
+
+
+# check if zip files are present (and/or if placeholders were replaced)
+for i in "$ZIP_DCM4CHEE" "$ZIP_DCM4CHEE_ARR" "$ZIP_JBOSS"; do
+   if [ -s $i ]
+           then
+		# zip-file exists and is not empty, so continue script
+		:
+           else
+		echo
+           	echo File $i does not exist or is empty! Please correct the problem and try again.
+		echo
+		exit 1
+   fi
+done
+
+# check if WAD_Services and WAD_Interface folders are present
+for i in "services" \
+	 "source" \
+	 "source/WAD_Interface/create_databases" \
+	 "source/WAD_Interface/website" \
+	 "source/WAD_Services/WAD_Collector" \
+	 "source/WAD_Services/WAD_Selector" \
+	 "source/WAD_Services/WAD_Processor" ; do
+   if [ -d $i ]
+           then
+		# folder exists, so continue script
+		:
+           else
+		echo
+           	echo Folder $i not found! Please correct the problem and try again.
+		echo
+		exit 1
+   fi
+done
+
+# check if WAD-folders are not empty (only several important files are checked)
+for i in "source/WAD_Interface/website/index.php" \
+	 "source/WAD_Interface/create_databases/create_dcm4chee_tables.sh" \
+	 "source/WAD_Interface/create_databases/create_iqc_tables.sh" \
+	 "source/WAD_Services/WAD_Collector/dist/WAD_Collector.jar" \
+	 "source/WAD_Services/WAD_Selector/dist/WAD_Selector.jar" \
+	 "source/WAD_Services/WAD_Processor/dist/WAD_Processor.jar" ; do
+   if [ -s $i ]
+           then
+		# file exists, so continue script
+		:
+           else
+		echo
+           	echo File $i does not exist or is empty! Please correct the problem and try again.
+		echo
+		exit 1
+   fi
+done
 
 
 ############################################################################################
