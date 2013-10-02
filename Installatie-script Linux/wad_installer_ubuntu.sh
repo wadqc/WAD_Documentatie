@@ -266,8 +266,8 @@ echo
 echo "Installing WAD Services"
 
 cp -RL source/WAD_Services/ $TARGET_WAD_SERVICES
-mkdir -p $TARGET_XML/analysemodule_output
-mkdir -p $TARGET_XML/analysemodule_input
+mkdir -p $TARGET_XML/XML/analysemodule_output
+mkdir -p $TARGET_XML/XML/analysemodule_input
 
 # modify config.xml
 perl -pi -e "s%^(\s*<uploads>).*(</uploads>\s*$)%\1$TARGET_WAD_INTERFACE/\2%g" $TARGET_WAD_SERVICES/WAD_Services/config.xml
