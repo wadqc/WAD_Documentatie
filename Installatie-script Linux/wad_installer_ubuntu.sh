@@ -186,6 +186,10 @@ echo "Finished restarting apache"
 ############################################################################################
 ############################################################################################
 
+DCM4CHEE_FOLDER=$TARGET_DCM4CHEE/$(basename $ZIP_DCM4CHEE .zip)
+JBOSS_FOLDER=$TARGET_DCM4CHEE/$(unzip -qql $ZIP_JBOSS | head -n1 | awk {'print $4'})
+
+
 echo
 echo "Installing DCM4CHEE - MySql"
 unzip $ZIP_DCM4CHEE -d $TARGET_DCM4CHEE
@@ -197,23 +201,23 @@ unzip $ZIP_DCM4CHEE -d $TARGET_DCM4CHEE
 
 MACHINE_TYPE=`uname -m`
 if [ ${MACHINE_TYPE} == 'x86_64' ]; then
-   perl -pi -e 's/value="com.sun.media.imageioimpl.plugins.jpeg.CLibJPEGImageWriter"/value="com.sun.imageio.plugins.jpeg.JPEGImageWriter"/g' $TARGET_DCM4CHEE/$(basename $ZIP_DCM4CHEE .zip)/server/default/conf/xmdesc/dcm4chee-wado-xmbean.xml
+   perl -pi -e 's/value="com.sun.media.imageioimpl.plugins.jpeg.CLibJPEGImageWriter"/value="com.sun.imageio.plugins.jpeg.JPEGImageWriter"/g' $DCM4CHEE_FOLDER/server/default/conf/xmdesc/dcm4chee-wado-xmbean.xml
 fi
 
 echo "Finished installing DCM4CHEE - MySQL"
 
 ############################################################################################
 
+echo 
+echo "Creating dcm4chee user"
+id -u pacs &>/dev/null || useradd pacs
+chown -R pacs:pacs $DCM4CHEE_FOLDER/server/
 
 echo
 echo "Creating DCM4CHEE tables (this can take a while)"
 perl -pi -e "s%^mysql -upacs -ppacs pacsdb.*$/%mysql -upacs -ppacs pacsdb < $TARGET_DCM4CHEE/$(basename $ZIP_DCM4CHEE .zip)/sql/create.mysql\n%g" source/WAD_Interface/create_databases/create_dcm4chee_tables.sh
 bash source/WAD_Interface/create_databases/create_dcm4chee_tables.sh $mysqlpwd
 echo "Finished creating DCM4CHEE tables"
-
-
-DCM4CHEE_FOLDER=$TARGET_DCM4CHEE/$(basename $ZIP_DCM4CHEE .zip)
-JBOSS_FOLDER=$TARGET_DCM4CHEE/$(unzip -qql $ZIP_JBOSS | head -n1 | awk {'print $4'})
 
 echo
 echo "Installing JBOSS"
