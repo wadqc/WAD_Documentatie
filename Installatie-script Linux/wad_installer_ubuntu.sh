@@ -162,6 +162,8 @@ apt-get -y install $JAVA
 apt-get -y install mysql-server phpmyadmin ssh
 apt-get -y install dcmtk
 
+apt-get install php-pear
+pear install --alldeps mail
 
 ############################################################################################
 
