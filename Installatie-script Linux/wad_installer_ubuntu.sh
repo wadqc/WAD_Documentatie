@@ -38,7 +38,7 @@ fi
 # check for Ubuntu
 distro=$(lsb_release -i | awk '{print $3}')
 
-if [[ "$distro" != "Ubuntu" && "$distro" != "Debian" && "$distro" != "Mint" ]]; then
+if [[ "$distro" != "Ubuntu" && "$distro" != "Debian" && "$distro" != "LinuxMint" ]]; then
 	echo "sorry, this script is currently only supported for Ubuntu, Debian and Mint!"
 	exit 1
 fi
