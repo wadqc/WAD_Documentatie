@@ -1,50 +1,54 @@
 #!/bin/bash
 
+action()
+{
+	service=$1
+	action=$2
+        # first try upstart
+        # if not available, try sysvinit
+	if [ -e "/var/run/$service" -o "$action" == "start" -o "$action" == "status" ]; then
+                if [ -e /etc/init/$service.conf ]; then
+                        $action $service
+                elif [ -e /etc/init.d/$service ]; then
+                        /etc/init.d/$service $action
+                fi
+		return 1
+        else
+		return 0
+	fi
+}
+
 case $1 in
         start)
-             start WAD-Collector
-             start WAD-Selector
-             start WAD-Processor
+	     for i in WAD-Collector WAD-Selector WAD-Processor
+	     do
+	     	action $i start
+	     done
         ;;
         stop)
-             if [ -e "/var/run/WAD-Collector" ]; then
-                stop WAD-Collector
-             else
-                echo "Warning: WAD-Collector service was not running."
-             fi
-             if [ -e "/var/run/WAD-Selector" ]; then
-                stop WAD-Selector
-             else
-                echo "Warning: WAD-Selector service was not running."
-             fi
-             if [ -e "/var/run/WAD-Processor" ]; then
-                stop WAD-Processor
-             else
-                echo "Warning: WAD-Processor service was not running."
-             fi
+	     for i in WAD-Collector WAD-Selector WAD-Processor
+	     do
+	     	if action $i stop
+		then
+                	echo "Warning: $i service was not running."
+		fi
+	     done
         ;;
         restart)
-             if [ -e "/var/run/WAD-Collector" ]; then
-                restart WAD-Collector
-             else
-                echo "Warning: WAD-Collector service is not running; starting now."
-                start WAD-Collector
-             fi
-             if [ -e "/var/run/WAD-Selector" ]; then
-                restart WAD-Selector
-             else
-                echo "Warning: WAD-Selector service is not running; starting now."
-                start WAD-Selector
-             fi
-             if [ -e "/var/run/WAD-Processor" ]; then
-                restart WAD-Processor
-             else
-                echo "Warning: WAD-Processor service is not running; starting now."
-                start WAD-Processor
-             fi
+	     for i in WAD-Collector WAD-Selector WAD-Processor
+	     do
+	     	if action $i restart
+		then
+			echo "Warning: $i service is not running; starting now."
+	                start $i
+		fi
+	     done
         ;;
         status)
-             initctl list | grep WAD-
+             for i in WAD-Collector WAD-Selector WAD-Processor
+             do
+                action $i status
+             done
         ;;
         *)
              echo "Usage: `basename $0` {start|stop|restart|status}"

@@ -38,8 +38,8 @@ fi
 # check for Ubuntu
 distro=$(lsb_release -i | awk '{print $3}')
 
-if [ "$distro" != "Ubuntu" ]; then
-	echo "sorry, this script is currently only supported for Ubuntu!"
+if [[ "$distro" != "Ubuntu" && "$distro" != "Debian" && "$distro" != "Mint" ]]; then
+	echo "sorry, this script is currently only supported for Ubuntu, Debian and Mint!"
 	exit 1
 fi
 
@@ -194,6 +194,7 @@ echo
 echo "Installing DCM4CHEE - MySql"
 unzip $ZIP_DCM4CHEE -d $TARGET_DCM4CHEE
 #tar -C /opt -xzvf source/dcm4chee-2.17.1-mysql.tgz
+chmod +x $DCM4CHEE_FOLDER/bin/run.sh
 
 # onder x64 krijg je een fout bij het starten van de WADO service
 #        (stap 8 van http://www.dcm4che.org/confluence/display/ee2/Installation)
@@ -291,26 +292,43 @@ chmod +x $TARGET_STARTSCRIPT/WAD-Services
 echo
 read -n 1 -p "Install dcm4chee as a service? [Y/n] " yesno
 if [[ "$yesno" == "" || "$yesno" == "y" || "$yesno" == "Y" ]] ; then
-	cp services/dcm4chee.conf /etc/init
-	perl -pi -e "s%^chdir.*$%chdir $DCM4CHEE_FOLDER/bin%g" /etc/init/dcm4chee.conf
-	perl -pi -e "s%^(\s*test -e\s*).*( ||.*$)%\1$DCM4CHEE_FOLDER/bin/run.sh\2%g" /etc/init/dcm4chee.conf
-	perl -pi -e "s%^(exec bash\s*).*%\1$DCM4CHEE_FOLDER/bin/run.sh\n%g" /etc/init/dcm4chee.conf
-	service dcm4chee start
+	if [ "$distro" == "Ubuntu" ]; then
+		cp services/upstart/dcm4chee.conf /etc/init
+		perl -pi -e "s%^chdir.*$%chdir $DCM4CHEE_FOLDER/bin%g" /etc/init/dcm4chee.conf
+		perl -pi -e "s%^(\s*test -e\s*).*( ||.*$)%\1$DCM4CHEE_FOLDER/bin/run.sh\2%g" /etc/init/dcm4chee.conf
+		perl -pi -e "s%^(exec sudo -u pacs bash\s*).*%\1$DCM4CHEE_FOLDER/bin/run.sh\n%g" /etc/init/dcm4chee.conf
+		service dcm4chee start
+	elif
+		# Debian or Mint:
+		cp services/sysvinit/dcm4chee /etc/init.d
+		update-rc.d dcm4chee defaults
+		perl -pi -e "s%^RUN_FROM=.*$%RUN_FROM=$DCM4CHEE_FOLDER/bin%g" /etc/init.d/dcm4chee
+		/etc/init.d/dcm4chee start
+	fi
 fi
 
 echo
 read -n 1 -p "Install WAD-Services as a service? [Y/n] " yesno
 if [[ "$yesno" == "" || "$yesno" == "y" || "$yesno" == "Y" ]] ; then
-	cp services/WAD*.conf /etc/init
-	perl -pi -e "s%^chdir.*$%chdir $TARGET_WAD_SERVICES/WAD_Services/WAD_Collector/dist%g" /etc/init/WAD-Collector.conf
-	perl -pi -e "s%^(\s*test -e\s*).*( ||.*$)%\1$TARGET_WAD_SERVICES/WAD_Services/WAD_Collector/dist/WAD_Collector.jar\2%g" /etc/init/WAD-Collector.conf
-	perl -pi -e "s%^chdir.*$%chdir $TARGET_WAD_SERVICES/WAD_Services/WAD_Selector/dist%g" /etc/init/WAD-Selector.conf
-	perl -pi -e "s%^(\s*test -e\s*).*( ||.*$)%\1$TARGET_WAD_SERVICES/WAD_Services/WAD_Selector/dist/WAD_Selector.jar\2%g" /etc/init/WAD-Selector.conf
-	perl -pi -e "s%^chdir.*$%chdir $TARGET_WAD_SERVICES/WAD_Services/WAD_Processor/dist%g" /etc/init/WAD-Processor.conf
-	perl -pi -e "s%^(\s*test -e\s*).*( ||.*$)%\1$TARGET_WAD_SERVICES/WAD_Services/WAD_Processor/dist/WAD_Processor.jar\2%g" /etc/init/WAD-Processor.conf
-	service WAD-Collector start
-	service WAD-Selector start
-	service WAD-Processor start
+	if [ "$distro" == "Ubuntu" ]; then
+		cp services/upstart/WAD*.conf /etc/init
+		perl -pi -e "s%^chdir.*$%chdir $TARGET_WAD_SERVICES/WAD_Services/WAD_Collector/dist%g" /etc/init/WAD-Collector.conf
+		perl -pi -e "s%^(\s*test -e\s*).*( ||.*$)%\1$TARGET_WAD_SERVICES/WAD_Services/WAD_Collector/dist/WAD_Collector.jar\2%g" /etc/init/WAD-Collector.conf
+		perl -pi -e "s%^chdir.*$%chdir $TARGET_WAD_SERVICES/WAD_Services/WAD_Selector/dist%g" /etc/init/WAD-Selector.conf
+		perl -pi -e "s%^(\s*test -e\s*).*( ||.*$)%\1$TARGET_WAD_SERVICES/WAD_Services/WAD_Selector/dist/WAD_Selector.jar\2%g" /etc/init/WAD-Selector.conf
+		perl -pi -e "s%^chdir.*$%chdir $TARGET_WAD_SERVICES/WAD_Services/WAD_Processor/dist%g" /etc/init/WAD-Processor.conf
+		perl -pi -e "s%^(\s*test -e\s*).*( ||.*$)%\1$TARGET_WAD_SERVICES/WAD_Services/WAD_Processor/dist/WAD_Processor.jar\2%g" /etc/init/WAD-Processor.conf
+	elif
+		# Debian or Mint:
+		cp services/sysvinit/WAD* /etc/init.d
+		update-rc.d WAD-Collector defaults
+		update-rc.d WAD-Selector defaults
+		update-rc.d WAD-Processor defaults
+		perl -pi -e "s%^RUN_FROM=.*$%RUN_FROM=$TARGET_WAD_SERVICES/WAD_Services/WAD_Collector/dist%g" /etc/init.d/WAD-Collector
+		perl -pi -e "s%^RUN_FROM=.*$%RUN_FROM=$TARGET_WAD_SERVICES/WAD_Services/WAD_Selector/dist%g" /etc/init.d/WAD-Selector
+		perl -pi -e "s%^RUN_FROM=.*$%RUN_FROM=$TARGET_WAD_SERVICES/WAD_Services/WAD_Processor/dist%g" /etc/init.d/WAD-Processor
+	fi
+	WAD-Services start
 fi
 
 ############################################################################################
