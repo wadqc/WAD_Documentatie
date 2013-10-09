@@ -336,18 +336,33 @@ fi
 echo
 echo "Services can be (re)started or stopped using:"
 echo
-echo "service <servicename> <command>"
+if [ "$distro" == "Ubuntu" ]; then
+	echo "service <servicename> <command>"
+	echo
+	echo "e.g. service WAD-Collector start"
+elif
+	echo "/etc/init.d/<servicename> <command>"
+	echo
+	echo "e.g. /etc/init.d/WAD-Collector start"
+fi
 echo
-echo "e.g. service WAD-Collector start"
-echo
-echo "services: WAD-Collector, WAD-Selector, WAD-Processor, dcm4chee"
+echo "servicename: WAD-Collector, WAD-Selector, WAD-Processor, dcm4chee"
 echo "commands: start, restart, stop, status"
 echo
-echo "Logfiles can be found under /var/log/upstart/<servicename>.log"
 echo
-echo "Alternatively, the script "WAD-Services" can be used to (re)start or stop all services at once."
+echo "Alternatively, the command "WAD-Services" can be used to (re)start or stop all WAD-services at once."
 echo
 
+if [ "$distro" == "Ubuntu" ]; then
+	echo "Logfiles can be found under /var/log/upstart/<servicename>.log"
+elif
+	echo "Logfiles can be found under:"
+	echo "   $TARGET_WAD_SERVICES/WAD_Services/WAD_Collector/dist"
+	echo "   $TARGET_WAD_SERVICES/WAD_Services/WAD_Selector/dist"
+	echo "   $TARGET_WAD_SERVICES/WAD_Services/WAD_Processor/dist"
+	echo "   $DCM4CHEE_FOLDER/server/default/log"
+fi
+echo
 echo
 echo "Finished installation, enjoy!"
 echo
