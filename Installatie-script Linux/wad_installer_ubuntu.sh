@@ -43,6 +43,8 @@ if [[ "$distro" != "Ubuntu" && "$distro" != "Debian" && "$distro" != "LinuxMint"
 	exit 1
 fi
 
+# update packagelist
+apt-get update
 
 # check if zip files are present (and/or if placeholders were replaced)
 for i in "$ZIP_DCM4CHEE" "$ZIP_DCM4CHEE_ARR" "$ZIP_JBOSS"; do
