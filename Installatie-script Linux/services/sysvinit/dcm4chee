@@ -4,6 +4,7 @@
 #
 
 NAME="dcm4chee"
+SELF=$(cd $(dirname $0); pwd -P)/$(basename $0)
 PIDFILE=/var/run/$NAME
 RUN_FROM=/opt/dcm4chee-2.17.1-mysql/bin
 DAEMON="$RUN_FROM/run.sh"
@@ -62,14 +63,6 @@ d_stop() {
     fi
 }
 
-d_stop_retry30() {
-    if start-stop-daemon --stop --quiet --pidfile $PIDFILE --retry 30 --user pacs
-    then
-	if [ -e $PIDFILE ]
-          then rm $PIDFILE
-	fi
-    fi
-}
 
 case "$1" in
   start)
@@ -87,9 +80,8 @@ case "$1" in
 	;;
   restart)
 	log_daemon_msg "Restarting $NAME"
-	d_stop_retry30
-	sleep 1
-	d_start
+	set +e; $SELF stop; set -e
+    $SELF start
 	;;
   status)
 	status_of_proc $DAEMON $NAME && exit 0 || exit $?
