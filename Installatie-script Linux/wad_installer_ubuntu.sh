@@ -300,7 +300,7 @@ if [[ "$yesno" == "" || "$yesno" == "y" || "$yesno" == "Y" ]] ; then
 		perl -pi -e "s%^(\s*test -e\s*).*( ||.*$)%\1$DCM4CHEE_FOLDER/bin/run.sh\2%g" /etc/init/dcm4chee.conf
 		perl -pi -e "s%^(exec sudo -u pacs bash\s*).*%\1$DCM4CHEE_FOLDER/bin/run.sh\n%g" /etc/init/dcm4chee.conf
 		service dcm4chee start
-	elif [ "$distro" == "Debian" || "$distro" == "LinuxMint" ]; then
+	elif [[ "$distro" == "Debian" || "$distro" == "LinuxMint" ]]; then
 		# Debian or Mint:
 		cp services/sysvinit/dcm4chee /etc/init.d
 		update-rc.d dcm4chee defaults
@@ -320,7 +320,7 @@ if [[ "$yesno" == "" || "$yesno" == "y" || "$yesno" == "Y" ]] ; then
 		perl -pi -e "s%^(\s*test -e\s*).*( ||.*$)%\1$TARGET_WAD_SERVICES/WAD_Services/WAD_Selector/dist/WAD_Selector.jar\2%g" /etc/init/WAD-Selector.conf
 		perl -pi -e "s%^chdir.*$%chdir $TARGET_WAD_SERVICES/WAD_Services/WAD_Processor/dist%g" /etc/init/WAD-Processor.conf
 		perl -pi -e "s%^(\s*test -e\s*).*( ||.*$)%\1$TARGET_WAD_SERVICES/WAD_Services/WAD_Processor/dist/WAD_Processor.jar\2%g" /etc/init/WAD-Processor.conf
-	elif [ "$distro" == "Debian" || "$distro" == "LinuxMint" ]; then
+	elif [[ "$distro" == "Debian" || "$distro" == "LinuxMint" ]]; then
 		# Debian or Mint:
 		cp services/sysvinit/WAD* /etc/init.d
 		update-rc.d WAD-Collector defaults
