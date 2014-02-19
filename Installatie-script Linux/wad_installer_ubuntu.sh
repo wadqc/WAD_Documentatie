@@ -303,6 +303,7 @@ if [[ "$yesno" == "" || "$yesno" == "y" || "$yesno" == "Y" ]] ; then
 	elif [[ "$distro" == "Debian" || "$distro" == "LinuxMint" ]]; then
 		# Debian or Mint:
 		cp services/sysvinit/dcm4chee /etc/init.d
+		chmod +x /etc/init.d/dcm4chee
 		update-rc.d dcm4chee defaults
 		perl -pi -e "s%^RUN_FROM=.*$%RUN_FROM=$DCM4CHEE_FOLDER/bin%g" /etc/init.d/dcm4chee
 		/etc/init.d/dcm4chee start
@@ -323,6 +324,7 @@ if [[ "$yesno" == "" || "$yesno" == "y" || "$yesno" == "Y" ]] ; then
 	elif [[ "$distro" == "Debian" || "$distro" == "LinuxMint" ]]; then
 		# Debian or Mint:
 		cp services/sysvinit/WAD* /etc/init.d
+		chmod +x /etc/init.d/WAD*
 		update-rc.d WAD-Collector defaults
 		update-rc.d WAD-Selector defaults
 		update-rc.d WAD-Processor defaults
