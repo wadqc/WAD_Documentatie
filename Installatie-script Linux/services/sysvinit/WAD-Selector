@@ -1,3 +1,13 @@
+﻿### BEGIN INIT INFO
+# Provides:          WAD-Selector
+# Required-Start:    $all mysql
+# Required-Stop:     $all
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start WAD-Selector
+# Description:       
+### END INIT INFO
+
 #!/bin/sh -e
 
 NAME="WAD-Selector"
