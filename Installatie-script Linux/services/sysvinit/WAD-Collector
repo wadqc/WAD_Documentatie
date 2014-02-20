@@ -1,8 +1,9 @@
 #!/bin/sh -e
 
 NAME="WAD-Collector"
+SELF=$(cd $(dirname $0); pwd -P)/$(basename $0)
 PIDFILE=/var/run/$NAME
-RUN_AS=root
+RUN_AS=www-data
 RUN_FROM=/opt/WAD_Services/WAD_Collector/dist
 JARFILE=WAD_Collector.jar
 DAEMON="/usr/bin/java -- -jar $JARFILE"
@@ -54,12 +55,6 @@ d_stop() {
     fi
 }
 
-d_stop_retry30() {
-    start-stop-daemon --stop --quiet --retry 30 --pidfile $PIDFILE
-    if [ -e $PIDFILE ]
-        then rm $PIDFILE
-    fi
-}
 
 case $1 in
   start)
@@ -78,9 +73,8 @@ case $1 in
 	;;
   restart)
     log_daemon_msg "Restarting $NAME"
-    d_stop_retry30
-    sleep 1
-    d_start
+    set +e; $SELF stop; set -e
+    $SELF start
     ;;
   status)
     status_of_proc -p $PIDFILE "/usr/bin/java" $NAME && exit 0 || exit $?
