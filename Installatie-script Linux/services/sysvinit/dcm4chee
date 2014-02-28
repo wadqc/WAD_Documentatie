@@ -1,4 +1,4 @@
-﻿### BEGIN INIT INFO
+### BEGIN INIT INFO
 # Provides:          dcm4chee
 # Required-Start:    $all mysql
 # Required-Stop:     $all
@@ -51,10 +51,8 @@ running()
 
 d_start() {
     if start-stop-daemon --background --start --quiet \
-                    --chuid pacs --exec $DAEMON
+                    --chuid pacs --exec $DAEMON --pidfile $PIDFILE --make-pidfile
     then
-	sleep 1
-	ps aux | grep name=dcm4chee | grep -v grep | awk '{print $2}' > $PIDFILE
         log_end_msg 0
     else
         log_end_msg 1
@@ -62,15 +60,22 @@ d_start() {
 }
 
 d_stop() {
-    if start-stop-daemon --stop --quiet --pidfile $PIDFILE --user pacs
-    then
-    	if [ -e $PIDFILE ]
-	  then rm $PIDFILE
-	fi
-	log_end_msg 0
-    else
-	log_warning_msg "$NAME was not running"
-    fi
+# $PIDFILE bevat de pid van run.sh dus start-stop-daemon werkt hier niet!
+# we gebruiken in plaats daarvan pkill om de children van run.sh te killen
+     if [ -e $PIDFILE ];
+     then
+        pid=`cat $PIDFILE`
+        if [ -z $pid ];
+           then
+           log_warning_msg "$NAME was not running"
+        else
+           pkill -TERM -P $pid
+           log_end_msg 0
+        fi
+        rm -rf $PIDFILE
+     else
+        log_warning_msg "$NAME was not running"
+     fi
 }
 
 
@@ -87,10 +92,12 @@ case "$1" in
   stop)
 	log_daemon_msg "Stopping $NAME"
 	d_stop
+        echo
 	;;
   restart)
 	log_daemon_msg "Restarting $NAME"
 	set +e; $SELF stop; set -e
+	sleep 5
         $SELF start 
         ;;
   status)
