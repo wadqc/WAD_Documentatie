@@ -172,10 +172,12 @@ pear install --alldeps mail
 
 SOURCEDIR=`pwd`
 
-# c:\xampp\php\php.ini de regel Upload_max_filesize = 2M -> Upload_max_filesize = 200M
+# wijzig in c:\xampp\php\php.ini de regels:
+#   upload_max_filesize = 2M -> upload_max_filesize = 200M
+#   post_max_size = 8M       -> post_max_size = 200M
 
 perl -pi -e 's/^upload_max_filesize = 2M/upload_max_filesize = 200M/g' /etc/php5/apache2/php.ini
-
+perl -pi -e 's/^post_max_size = 8M/post_max_size = 200M/g' /etc/php5/apache2/php.ini
 
 # 1. Maak de folder c:\WAD-software aan en kopieer de mappen WAD Interface en WAD Service hier naartoe. WAD Interface bevat de website en de database create-scripts WAD Service bevat de benodigde java applicaties
 
