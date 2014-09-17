@@ -1,3 +1,5 @@
+#!/bin/sh
+#
 ### BEGIN INIT INFO
 # Provides:          dcm4chee
 # Required-Start:    $all mysql
@@ -8,7 +10,8 @@
 # Description:       
 ### END INIT INFO
 
-#!/bin/sh -e
+set -e
+
 #
 # dcm4chee init.d startup script
 #

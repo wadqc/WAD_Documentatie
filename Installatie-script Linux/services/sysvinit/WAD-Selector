@@ -1,4 +1,6 @@
-﻿### BEGIN INIT INFO
+#!/bin/sh
+#
+### BEGIN INIT INFO
 # Provides:          WAD-Selector
 # Required-Start:    $all mysql
 # Required-Stop:     $all
@@ -8,7 +10,7 @@
 # Description:       
 ### END INIT INFO
 
-#!/bin/sh -e
+set -e
 
 NAME="WAD-Selector"
 SELF=$(cd $(dirname $0); pwd -P)/$(basename $0)
