@@ -264,6 +264,9 @@ echo "Finished creating IQC tables"
 echo
 echo "Installing WAD Interface"
 
+# modify location of default website of apache 2.4
+perl -pi -e 's/DocumentRoot \/var\/www\/html/DocumentRoot \/var\/www/g' /etc/apache2/sites-available/000-default.conf
+
 [ -f $TARGET_WAD_INTERFACE/index.html ] && mv $TARGET_WAD_INTERFACE/index.html $TARGET_WAD_INTERFACE/index.old
 cp -RL source/WAD_Interface/website/* $TARGET_WAD_INTERFACE
 #cp source/wadiqc /etc/apache2/sites-available
