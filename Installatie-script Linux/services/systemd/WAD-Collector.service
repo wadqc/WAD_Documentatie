@@ -1,0 +1,13 @@
+[Unit]
+Description=WAD-Collector
+After=syslog.target network.target mariadb.service
+
+[Service]
+Type=simple
+User=apache
+Group=apache
+WorkingDirectory=/opt/WAD_Services/WAD_Collector/dist
+ExecStart=/usr/bin/java -Xmx512m -Xrs -jar WAD_Collector.jar
+
+[Install]
+WantedBy=multi-user.target

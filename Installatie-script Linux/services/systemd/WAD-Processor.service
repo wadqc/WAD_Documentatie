@@ -1,0 +1,13 @@
+[Unit]
+Description=WAD-Processor
+After=syslog.target network.target mariadb.service
+
+[Service]
+Type=simple
+User=apache
+Group=apache
+WorkingDirectory=/opt/WAD_Services/WAD_Processor/dist
+ExecStart=/usr/bin/java -Xmx512m -Xrs -jar WAD_Processor.jar
+
+[Install]
+WantedBy=multi-user.target

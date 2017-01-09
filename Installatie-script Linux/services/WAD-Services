@@ -4,14 +4,19 @@ action()
 {
 	service=$1
 	action=$2
-        # first try upstart
+
+	# if not available, try systemd
+	if [ -e /usr/lib/systemd/system/$service.service ]; then
+		systemctl $action $service
+		return 1
+	# if not available, try upstart
         # if not available, try sysvinit
-	if [ -e "/var/run/$service" -o "$action" == "start" -o "$action" == "status" ]; then
+	elif [ -e "/var/run/$service" -o "$action" == "start" -o "$action" == "status" ]; then
                 if [ -e /etc/init/$service.conf ]; then
                         $action $service
                 elif [ -e /etc/init.d/$service ]; then
                         /etc/init.d/$service $action
-                fi
+		fi
 		return 1
         else
 		return 0

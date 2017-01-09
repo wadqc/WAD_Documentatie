@@ -1,0 +1,13 @@
+[Unit]
+Description=DCM4CHEE PACS Server
+After=syslog.target network.target mariadb.service
+
+[Service]
+Type=simple
+User=pacs
+Group=pacs
+ExecStart=/opt/dcm4chee-2.17.1-mysql/bin/run.sh
+ExecStop=/opt/dcm4chee-2.17.1-mysql/bin/shutdown.sh -S
+
+[Install]
+WantedBy=multi-user.target
